@@ -1,0 +1,55 @@
+"""Flask application factory"""
+
+import os
+
+from flask import Flask
+
+from .routes import api as api_routes
+from .routes import web as web_routes
+from .routes import database as database_routes
+
+from .database import db
+from .database.models import Project
+
+
+def register_blueprints(app):
+    """Registers blueprints to the application"""
+    app.register_blueprint(web_routes)
+    app.register_blueprint(api_routes, url_prefix="/api")
+    app.register_blueprint(database_routes, url_prefix="/db")
+    return app
+
+
+def create_app(test_config=None):
+    app = Flask(__name__, instance_relative_config=True)
+    protocol = "sqlite"
+    database_location = f"{protocol}:///{app.instance_path}/db.sqlite"
+    print(database_location)
+    app.config.from_mapping(
+        SECRET_KEY="dev",
+        # DATABASE=os.path.join(app.instance_path, 'db.sqlite'),
+        SQLALCHEMY_DATABASE_URI=database_location,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    )
+
+    if test_config is None:
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        app.config.from_mapping(test_config)
+
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    db.init_app(app)
+    with app.test_request_context():
+        db.create_all()
+
+    app = register_blueprints(app)
+
+    return app
+
+
+# if __name__ == "__main__":
+#     app = create_app()
