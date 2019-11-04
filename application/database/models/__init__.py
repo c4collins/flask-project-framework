@@ -1,13 +1,13 @@
 """Project models"""
 
-from .. import db
+from .. import DB
 
 
-class Project(db.Model):
+class Project(DB.Model):
     """Project defines the projets being stored in this database"""
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
+    id = DB.Column(DB.Integer, primary_key=True)
+    name = DB.Column(DB.String(80), unique=True, nullable=False)
 
     def __repr__(self):
         return f"<Project {self.id} - {self.name}>"

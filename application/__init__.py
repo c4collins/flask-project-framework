@@ -8,7 +8,7 @@ from .routes import API as api_routes
 from .routes import WEB as web_routes
 from .routes import DATABASE as database_routes
 
-from .database import db
+from .database import DB
 from .database.models import Project
 
 
@@ -51,9 +51,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    db.init_app(app)
+    DB.init_app(app)
     with app.test_request_context():
-        db.create_all()
+        DB.create_all()
 
     app = register_blueprints(app)
 
