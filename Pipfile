@@ -5,11 +5,12 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+autopep8 = "*"
 
 [packages]
-Flask-SQLAlchemy="2.4"
-Flask-Admin="1.5"
-Flask="1.1"
+Flask-SQLAlchemy="*"
+Flask-Admin="*"
+Flask="*"
 
 [requires]
 python_version = "3.7"

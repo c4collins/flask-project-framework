@@ -1,19 +1,23 @@
-"""Flask application factory"""
+"""Flask application factory & configuration"""
 
 import os
 
 from flask import Flask
 
-from .routes import api as api_routes
-from .routes import web as web_routes
-from .routes import database as database_routes
+from .routes import API as api_routes
+from .routes import WEB as web_routes
+from .routes import DATABASE as database_routes
 
 from .database import db
 from .database.models import Project
 
 
 def register_blueprints(app):
-    """Registers blueprints to the application"""
+    """Registers blueprints to the application
+
+    @app: Flask application - application to attach these blueprints to
+    """
+
     app.register_blueprint(web_routes)
     app.register_blueprint(api_routes, url_prefix="/api")
     app.register_blueprint(database_routes, url_prefix="/db")
@@ -21,6 +25,11 @@ def register_blueprints(app):
 
 
 def create_app(test_config=None):
+    """Flask Application factory
+
+    @config: object - Use a defined flask config rather than config.py
+    """
+
     app = Flask(__name__, instance_relative_config=True)
     protocol = "sqlite"
     database_location = f"{protocol}:///{app.instance_path}/db.sqlite"

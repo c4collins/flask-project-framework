@@ -1,13 +1,16 @@
+"""Routes for the Database - probably for tests or stored procedures in development.
+This blueprint should probably be disabled before going live."""
+
 from flask import Blueprint
 from application.database.models import Project
 
-database = Blueprint('database', __name__,
-                     # template_folder='templates'
-                     )
+DATABASE = Blueprint('database', __name__)
 
 
-@database.route('/test')
+@DATABASE.route('/test')
 def db_test():
-    q = Project.query.all()
+    """Test to check if projects are in database"""
 
-    return {'query': q}
+    query = Project.query.all()
+
+    return {'query': query}

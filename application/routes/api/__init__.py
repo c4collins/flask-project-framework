@@ -1,12 +1,13 @@
+"""Routes that return their data as JSON"""
 from flask import Blueprint
 
-api = Blueprint('api', __name__,
-                # template_folder='templates'
-                )
+API = Blueprint('api', __name__)
 
 
-@api.route('/')
+@API.route('/')
 def null():
+    """Example API route"""
+
     return {
         'route': '/api/'
     }

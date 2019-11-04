@@ -1,5 +1,6 @@
 *.pyc
 __pycache__/
+.pylintrc
 
 instance/
 
@@ -11,3 +12,5 @@ dist/
 build/
 *.egg-info/
 .vscode/
+
+node_modules/
