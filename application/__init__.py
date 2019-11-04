@@ -11,11 +11,14 @@ from .routes import DATABASE as database_routes
 from .database import DB
 from .database.models import Project
 
+from .admin import ADMIN
+
 
 def register_blueprints(app):
     """Registers blueprints to the application
 
-    @app: Flask application - application to attach these blueprints to
+    register_blueprints(app:Flask) -> Flask
+        app => Flask application to attach these blueprints to
     """
 
     app.register_blueprint(web_routes)
@@ -25,18 +28,21 @@ def register_blueprints(app):
 
 
 def create_app(test_config=None):
-    """Flask Application factory
+    """Flask application factory
 
-    @config: object - Use a defined flask config rather than config.py
+    create_app(test_config:object) -> Flask
+        test_config => Use a defined flask config rather than config.py
     """
 
     app = Flask(__name__, instance_relative_config=True)
     protocol = "sqlite"
     database_location = f"{protocol}:///{app.instance_path}/db.sqlite"
-    print(database_location)
+
     app.config.from_mapping(
         SECRET_KEY="dev",
-        # DATABASE=os.path.join(app.instance_path, 'db.sqlite'),
+        # Flask Admin
+        FLASK_ADMIN_SWATCH="cerulean",
+        # SQLAlchemy
         SQLALCHEMY_DATABASE_URI=database_location,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
@@ -57,8 +63,6 @@ def create_app(test_config=None):
 
     app = register_blueprints(app)
 
+    ADMIN.init_app(app)
+
     return app
-
-
-# if __name__ == "__main__":
-#     app = create_app()
