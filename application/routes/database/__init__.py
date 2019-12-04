@@ -2,15 +2,15 @@
 This blueprint should probably be disabled before going live."""
 
 from flask import Blueprint
-from application.database.models import Project
+from application.database.models import Game
 
 DATABASE = Blueprint('database', __name__)
 
 
 @DATABASE.route('/test')
 def db_test():
-    """Test to check if projects are in database"""
+    """Test to check if games are in database"""
 
-    query = Project.query.all()
+    query = Game.query.all()
 
     return {'query': query}

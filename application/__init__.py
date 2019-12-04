@@ -3,14 +3,13 @@
 import os
 
 from flask import Flask
+from flask_migrate import Migrate
 
 from .routes import API as api_routes
 from .routes import WEB as web_routes
 from .routes import DATABASE as database_routes
 
 from .database import DB
-from .database.models import Project
-
 from .admin import ADMIN
 
 
@@ -60,6 +59,7 @@ def create_app(test_config=None):
     DB.init_app(app)
     with app.test_request_context():
         DB.create_all()
+    Migrate(app, DB)
 
     app = register_blueprints(app)
 
