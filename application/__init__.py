@@ -3,6 +3,7 @@
 import os
 
 from flask import Flask
+from dotenv import load_dotenv
 
 from .routes import API as api_routes
 from .routes import WEB as web_routes
@@ -13,6 +14,11 @@ from .database.models import Project
 
 from .admin import ADMIN
 
+from .auth import Auth
+
+load_dotenv() # Added for Windows because I couldn't figure out how powershell env vars worked
+
+AUTH = Auth()
 
 def register_blueprints(app):
     """Registers blueprints to the application
@@ -40,6 +46,7 @@ def create_app(test_config=None):
 
     app.config.from_mapping(
         SECRET_KEY="dev",
+        DEBUG=True,
         # Flask Admin
         FLASK_ADMIN_SWATCH="cerulean",
         # SQLAlchemy
@@ -61,8 +68,16 @@ def create_app(test_config=None):
     with app.test_request_context():
         DB.create_all()
 
+    AUTH.init_app(app)
+
     app = register_blueprints(app)
 
     ADMIN.init_app(app)
+
+    @app.before_first_request
+    def create_default_user():
+        DB.create_all() # probably not necessary here
+        AUTH.user_datastore.create_user(email="connor@connomation.ca", password="password")
+        DB.session.commit()
 
     return app
