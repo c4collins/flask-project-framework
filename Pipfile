@@ -6,13 +6,13 @@ verify_ssl = true
 [dev-packages]
 pylint = "*"
 autopep8 = "*"
-python-dotenv = "*"
 
 [packages]
 Flask-SQLAlchemy="*"
 Flask-Admin="*"
 Flask="*"
 flask-security = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5102a4897246f1473163e583cfdc9dc0575b9c5f6c6839796f0427882b0bc260"
+            "sha256": "0fa19756fd6ff003602d7ffc79c9e00127d979c1bb910a5e3e7e951da324fdd3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -152,6 +152,14 @@
             ],
             "version": "==1.7.2"
         },
+        "python-dotenv": {
+            "hashes": [
+                "sha256:440c7c23d53b7d352f9c94d6f70860242c2f071cf5c029dd661ccb22d64ae42b",
+                "sha256:f254bfd0c970d64ccbb6c9ebef3667ab301a71473569c991253a481f1c98dddc"
+            ],
+            "index": "pypi",
+            "version": "==0.10.5"
+        },
         "pytz": {
             "hashes": [
                 "sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d",
@@ -200,14 +208,6 @@
             ],
             "index": "pypi",
             "version": "==1.5"
-        },
-        "colorama": {
-            "hashes": [
-                "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff",
-                "sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
-            ],
-            "markers": "sys_platform == 'win32'",
-            "version": "==0.4.3"
         },
         "isort": {
             "hashes": [
@@ -263,14 +263,6 @@
             ],
             "index": "pypi",
             "version": "==2.4.4"
-        },
-        "python-dotenv": {
-            "hashes": [
-                "sha256:440c7c23d53b7d352f9c94d6f70860242c2f071cf5c029dd661ccb22d64ae42b",
-                "sha256:f254bfd0c970d64ccbb6c9ebef3667ab301a71473569c991253a481f1c98dddc"
-            ],
-            "index": "pypi",
-            "version": "==0.10.5"
         },
         "six": {
             "hashes": [
