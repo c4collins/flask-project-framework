@@ -1,6 +1,6 @@
 """Project models"""
 
-from .. import DB
+from . import DB
 
 
 class Project(DB.Model):
@@ -11,3 +11,4 @@ class Project(DB.Model):
 
     def __repr__(self):
         return f"<Project {self.id} - {self.name}>"
+
