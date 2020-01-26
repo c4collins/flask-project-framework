@@ -19,3 +19,6 @@ class Auth:
             Flask => flask application
         """
         return Security(app, self.user_datastore)
+
+    def __str__(self):
+        return "<Auth>"

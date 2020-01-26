@@ -15,6 +15,8 @@ class Project(DB.Model):
 
     def __repr__(self):
         return f"<Project {self.id} - {self.name}>"
+    def __str__(self):
+        return f"Project {self.id} - {self.name}"
 
 
 class ProjectAdmin(ModelView):

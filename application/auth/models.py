@@ -22,6 +22,9 @@ class Role(DB.Model, RoleMixin):
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return f"<Role {self.name}>"
+
 
 class RoleAdmin(ModelView):
     """Flask-admin ModelView for the Role model"""
@@ -50,6 +53,9 @@ class User(DB.Model, UserMixin):
 
     def __str__(self):
         return self.email
+
+    def __repr__(self):
+        return f"<User {self.email}>"
 
 class UserAdmin(ModelView):
     """Flask-admin ModelView for the User model"""
