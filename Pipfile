@@ -13,6 +13,7 @@ Flask-Admin="*"
 Flask="*"
 flask-security = "*"
 python-dotenv = "*"
+bcrypt = "*"
 
 [requires]
 python_version = "3.7"

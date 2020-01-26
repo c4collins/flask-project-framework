@@ -1,6 +1,7 @@
 """Flask application factory & configuration"""
 
 import os
+import uuid
 
 from flask import Flask
 from dotenv import load_dotenv
@@ -15,10 +16,27 @@ from .database.models import Project
 from .admin import ADMIN
 
 from .auth import Auth
+from .auth.models import User
 
-load_dotenv() # Added for Windows because I couldn't figure out how powershell env vars worked
+load_dotenv()  # Added for Windows because I couldn't figure out how powershell env vars worked
 
 AUTH = Auth()
+
+try:
+    DOMAIN = os.environ['DOMAIN']
+except KeyError:
+    DOMAIN = 'connomation.ca'
+
+try:
+    ADMIN_EMAIL = os.environ['ADMIN_EMAIL']
+except KeyError:
+    ADMIN_EMAIL = f'connor@{DOMAIN}'
+
+try:
+    ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
+except KeyError:
+    ADMIN_PASSWORD = 'password' # FIXME: Set a better password
+
 
 def register_blueprints(app):
     """Registers blueprints to the application
@@ -52,6 +70,9 @@ def create_app(test_config=None):
         # SQLAlchemy
         SQLALCHEMY_DATABASE_URI=database_location,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        # Flask Security
+        SECURITY_PASSWORD_SALT=str(uuid.uuid5(
+            uuid.NAMESPACE_DNS, DOMAIN)) # FIXME: Insecure
     )
 
     if test_config is None:
@@ -76,8 +97,9 @@ def create_app(test_config=None):
 
     @app.before_first_request
     def create_default_user():
-        DB.create_all() # probably not necessary here
-        AUTH.user_datastore.create_user(email="connor@connomation.ca", password="password")
-        DB.session.commit()
+        if User.query.filter_by(email=ADMIN_EMAIL).count() == 0:
+            AUTH.user_datastore.create_user(
+                email=ADMIN_EMAIL, password=ADMIN_PASSWORD)
+            DB.session.commit()
 
     return app
