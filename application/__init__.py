@@ -6,6 +6,7 @@ import uuid
 from flask import Flask, url_for
 from flask_admin import helpers as admin_helpers
 from flask_migrate import Migrate
+from flask_security import utils
 from dotenv import load_dotenv
 
 from application.routes import API as api_routes
@@ -17,7 +18,7 @@ from application.database import DB
 from application.admin import ADMIN
 
 from application.auth import Auth
-from application.auth.models import User
+from application.auth.models import User, Role
 
 load_dotenv()  # Added for Windows because I couldn't figure out how powershell env vars worked
 
@@ -111,11 +112,25 @@ def create_app(test_config=None):
 
     @app.before_first_request
     def create_default_user():
-        """Creates an admin user if none exist"""  # TODO: Once roles are set up this will need some
+        """Creates roles + an admin user if none exist"""
+
+        if Role.query.filter_by(name='admin').count() == 0:
+            AUTH.user_datastore.find_or_create_role(
+                name='admin', description='Administrator')
+
+        if Role.query.filter_by(name='end-user').count() == 0:
+            AUTH.user_datastore.find_or_create_role(
+                name='end-user', description='End user')
+
         if User.query.filter_by(email=ADMIN_EMAIL).count() == 0:
             # DB.create_all()
             AUTH.user_datastore.create_user(
-                email=ADMIN_EMAIL, password=ADMIN_PASSWORD)
+                email=ADMIN_EMAIL,
+                password=utils.encrypt_password(ADMIN_PASSWORD)
+            )
             DB.session.commit()
+            AUTH.user_datastore.add_role_to_user(ADMIN_EMAIL, 'admin')
+
+        DB.session.commit()
 
     return app
