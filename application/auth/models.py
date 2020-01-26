@@ -1,32 +1,82 @@
 """Users and Roles Database Model Definitions"""
 
-from flask_security import UserMixin, RoleMixin
+from flask_admin.contrib.sqla import ModelView
+from flask_security import UserMixin, RoleMixin, current_user, utils
+from wtforms.fields import PasswordField
 
-from application.database import DB as db
+from application.database import DB
 
-ROLES_USERS = db.Table(
+ROLES_USERS = DB.Table(
     'roles_users',
-    db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-    db.Column('role_id', db.Integer(), db.ForeignKey('role.id')),
+    DB.Column('user_id', DB.Integer(), DB.ForeignKey('user.id')),
+    DB.Column('role_id', DB.Integer(), DB.ForeignKey('role.id')),
 )
 
 
-class Role(db.Model, RoleMixin):
+class Role(DB.Model, RoleMixin):
     """Roles / Permissions Groups"""
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(255))
+    id = DB.Column(DB.Integer(), primary_key=True)
+    name = DB.Column(DB.String(80), unique=True)
+    description = DB.Column(DB.String(255))
+
+    def __str__(self):
+        return self.name
 
 
-class User(db.Model, UserMixin):
+class RoleAdmin(ModelView):
+    """Flask-admin ModelView for the Role model"""
+    def is_accessible(self):
+        """Make sure only admins can see this"""
+        return current_user.has_role('admin')
+
+
+class User(DB.Model, UserMixin):
     """Platform User"""
-    id = db.Column(db.Integer(), primary_key=True)
-    email = db.Column(db.String(255), unique=True)
-    password = db.Column(db.String(255))
-    active = db.Column(db.Boolean())
-    confirmed_at = db.Column(db.DateTime())
-    roles = db.relationship(
+    id = DB.Column(DB.Integer(), primary_key=True)
+    email = DB.Column(DB.String(255), unique=True)
+    password = DB.Column(DB.String(255))
+    active = DB.Column(DB.Boolean())
+    confirmed_at = DB.Column(DB.DateTime())
+    last_login_at = DB.Column(DB.DateTime())
+    current_login_at = DB.Column(DB.DateTime())
+    last_login_ip = DB.Column(DB.String(15))
+    current_login_ip = DB.Column(DB.String(15))
+    login_count = DB.Column(DB.Integer())
+    roles = DB.relationship(
         'Role',
         secondary=ROLES_USERS,
-        backref=db.backref('users', lazy='dynamic')
+        backref=DB.backref('users', lazy='dynamic')
     )
+
+    def __str__(self):
+        return self.email
+
+class UserAdmin(ModelView):
+    """Flask-admin ModelView for the User model"""
+    column_exclude_list = ('password',)
+    form_excluded_columns = ('password',)
+    column_auto_select_related = True
+
+    def is_accessible(self):
+        """Make sure only admins can see this"""
+        return current_user.has_role('admin')
+
+    def scaffold_form(self):
+        """
+        On the form for creating or editing a User,
+        don't display a field corresponding to the model's password field.
+        There are two reasons for this.
+        First, we want to encrypt the password before storing in the database.
+        Second, we want to use a password field rather than a regular text field.
+        """
+        # Start with the standard form as provided by Flask-Admin.
+        form_class = super(UserAdmin, self).scaffold_form()
+        # Add a password field, naming it "password2" and labeling it "New Password".
+        form_class.password2 = PasswordField('New Password')
+        return form_class
+
+    def on_model_change(self, form, model, is_created):
+        """This callback executes when the user saves a User"""
+        # If the password field isn't blank...
+        if len(model.password2) > 0:
+            model.password = utils.encrypt_password(model.password2)

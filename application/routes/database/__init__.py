@@ -2,6 +2,7 @@
 This blueprint should probably be disabled before going live."""
 
 from flask import Blueprint
+from application.auth.models import User, Role
 from application.database.models import Project
 
 DATABASE = Blueprint('database', __name__)
@@ -11,6 +12,12 @@ DATABASE = Blueprint('database', __name__)
 def db_test():
     """Test to check if projects are in database"""
 
-    query = Project.query.all()
+    user_query = User.query.all()
+    role_query = Role.query.all()
+    project_query = Project.query.all()
 
-    return {'query': query}
+    return {
+        'users': [str(user) for user in user_query],
+        'roles': [str(role) for role in role_query],
+        'projects': project_query
+    }

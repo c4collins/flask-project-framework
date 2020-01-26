@@ -3,20 +3,21 @@
 import os
 import uuid
 
-from flask import Flask
+from flask import Flask, url_for
+from flask_admin import helpers as admin_helpers
+from flask_migrate import Migrate
 from dotenv import load_dotenv
 
-from .routes import API as api_routes
-from .routes import WEB as web_routes
-from .routes import DATABASE as database_routes
+from application.routes import API as api_routes
+from application.routes import WEB as web_routes
+from application.routes import DATABASE as database_routes
 
-from .database import DB
-from .database.models import Project
+from application.database import DB
 
-from .admin import ADMIN
+from application.admin import ADMIN
 
-from .auth import Auth
-from .auth.models import User
+from application.auth import Auth
+from application.auth.models import User
 
 load_dotenv()  # Added for Windows because I couldn't figure out how powershell env vars worked
 
@@ -35,7 +36,7 @@ except KeyError:
 try:
     ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
 except KeyError:
-    ADMIN_PASSWORD = 'password' # FIXME: Set a better password
+    ADMIN_PASSWORD = 'password'  # FIXME: Set a better password
 
 
 def register_blueprints(app):
@@ -60,7 +61,6 @@ def create_app(test_config=None):
 
     app = Flask(__name__, instance_relative_config=True)
     protocol = "sqlite"
-    database_location = f"{protocol}:///{app.instance_path}/db.sqlite"
 
     app.config.from_mapping(
         SECRET_KEY="dev",
@@ -68,11 +68,23 @@ def create_app(test_config=None):
         # Flask Admin
         FLASK_ADMIN_SWATCH="cerulean",
         # SQLAlchemy
-        SQLALCHEMY_DATABASE_URI=database_location,
+        SQLALCHEMY_DATABASE_URI=f"{protocol}:///{app.instance_path}/db.sqlite",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # Flask Security
         SECURITY_PASSWORD_SALT=str(uuid.uuid5(
-            uuid.NAMESPACE_DNS, DOMAIN)) # FIXME: Insecure
+            uuid.NAMESPACE_DNS, DOMAIN)),  # FIXME: Insecure
+        SECURITY_CONFIRMABLE=False,  # TODO: Maybe set this up later, post flask-mail setup
+        SECURITY_TRACKABLE=True,
+        SECURITY_REGISTERABLE=True,
+        SECURITY_RECOVERABLE=True,
+        SECURITY_CHANGEABLE=True,
+        # Flask-Security URLs, overridden because they don't put a / at the end
+        SECURITY_LOGIN_URL="/login/",
+        SECURITY_LOGOUT_URL="/logout/",
+        SECURITY_REGISTER_URL="/register/",
+        SECURITY_POST_LOGIN_VIEW="/",
+        SECURITY_POST_LOGOUT_VIEW="/",
+        SECURITY_POST_REGISTER_VIEW="/",
     )
 
     if test_config is None:
@@ -86,8 +98,7 @@ def create_app(test_config=None):
         pass
 
     DB.init_app(app)
-    with app.test_request_context():
-        DB.create_all()
+    Migrate(app, DB)
 
     AUTH.init_app(app)
 
@@ -95,9 +106,14 @@ def create_app(test_config=None):
 
     ADMIN.init_app(app)
 
+    with app.test_request_context():
+        DB.create_all()
+
     @app.before_first_request
     def create_default_user():
+        """Creates an admin user if none exist"""  # TODO: Once roles are set up this will need some
         if User.query.filter_by(email=ADMIN_EMAIL).count() == 0:
+            # DB.create_all()
             AUTH.user_datastore.create_user(
                 email=ADMIN_EMAIL, password=ADMIN_PASSWORD)
             DB.session.commit()
