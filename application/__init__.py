@@ -40,6 +40,11 @@ try:
 except KeyError:
     ADMIN_PASSWORD = 'Pa55w0rD!'
 
+try:
+    SECURITY_PASSWORD_SALT = os.environ['SECURITY_PASSWORD_SALT']
+except KeyError:
+    SECURITY_PASSWORD_SALT = str(uuid.uuid5(uuid.NAMESPACE_DNS, DOMAIN))
+
 
 def register_blueprints(app):
     """Registers blueprints to the application
@@ -97,9 +102,8 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_URI=f"{protocol}:///{app.instance_path}/db.sqlite",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # Flask Security
-        SECURITY_PASSWORD_SALT=str(uuid.uuid5(
-            uuid.NAMESPACE_DNS, DOMAIN)),  # FIXME: Insecure
-        SECURITY_CONFIRMABLE=False,  # TODO: Maybe set this up later, post flask-mail setup
+        SECURITY_PASSWORD_SALT=SECURITY_PASSWORD_SALT,
+        SECURITY_CONFIRMABLE=False,  # TODO: Set this up later, post flask-mail setup
         SECURITY_TRACKABLE=True,
         SECURITY_REGISTERABLE=True,
         SECURITY_RECOVERABLE=True,
