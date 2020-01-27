@@ -3,7 +3,7 @@
 import os
 import uuid
 
-from flask import Flask, url_for
+from flask import Flask, url_for, send_from_directory
 from flask_admin import helpers as admin_helpers
 from flask_migrate import Migrate
 from flask_security import SQLAlchemyUserDatastore, utils
@@ -133,5 +133,11 @@ def create_app(test_config=None):
     with app.test_request_context():
         DB.create_all()
         create_default_user_and_roles(security)
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(
+            os.path.join(app.root_path, 'static'),
+            'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
     return app
