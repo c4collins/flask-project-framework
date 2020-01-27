@@ -12,6 +12,7 @@ class Project(DB.Model):
 
     id = DB.Column(DB.Integer, primary_key=True)
     name = DB.Column(DB.String(80), unique=True, nullable=False)
+    description = DB.Column(DB.String(255), unique=True, nullable=False)
 
     def __repr__(self):
         return f"<Project {self.id} - {self.name}>"
