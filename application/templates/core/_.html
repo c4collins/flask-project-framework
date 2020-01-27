@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include "core/html_head/_.html" %}
+    <body>
+    {% block body %}
+    
+        <section class="section">
+            <div class="container">
+                {% include "core/page_header/_.html" %}
+                {% block page_content %}
+                    No content.
+                {% endblock page_content %}
+                {% include "core/page_footer/_.html" %}
+            </div>
+        </section>
+    {% endblock body %}
+    </body>
+</html>

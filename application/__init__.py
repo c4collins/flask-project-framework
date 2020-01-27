@@ -9,9 +9,11 @@ from flask_migrate import Migrate
 from flask_security import SQLAlchemyUserDatastore, utils
 from dotenv import load_dotenv
 
-from application.routes import API as api_routes
-from application.routes import WEB as web_routes
-from application.routes import DATABASE as database_routes
+from application.routes import \
+    API as api_routes, \
+    WEB as web_routes, \
+    DATABASE as database_routes
+from application.routes.web import add_context_processors as add_web_context_processors
 
 from application.database import DB
 
@@ -36,7 +38,7 @@ except KeyError:
 try:
     ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
 except KeyError:
-    ADMIN_PASSWORD = 'password'  # FIXME: Set a better password
+    ADMIN_PASSWORD = 'Pa55w0rD!'
 
 
 def register_blueprints(app):
@@ -49,6 +51,7 @@ def register_blueprints(app):
     app.register_blueprint(web_routes)
     app.register_blueprint(api_routes, url_prefix="/api")
     app.register_blueprint(database_routes, url_prefix="/db")
+    add_web_context_processors(app, domain=DOMAIN)
     return app
 
 
