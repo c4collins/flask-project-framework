@@ -3,6 +3,7 @@ __pycache__/
 .pylintrc
 
 instance/
+.webassets-cache
 
 .pytest_cache/
 .coverage

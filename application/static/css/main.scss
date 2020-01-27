@@ -1,0 +1,11 @@
+$body-background: red;
+$footer-background: green;
+
+body {
+    background-color: $body-background;
+}
+
+.footer {
+    background-color: $footer-background;
+    box-shadow:  0 50vh 0 50vh $footer-background;
+}

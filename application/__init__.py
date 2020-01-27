@@ -3,11 +3,12 @@
 import os
 import uuid
 
+from dotenv import load_dotenv
 from flask import Flask, url_for, send_from_directory
 from flask_admin import helpers as admin_helpers
+from flask_assets import Environment, Bundle
 from flask_migrate import Migrate
 from flask_security import SQLAlchemyUserDatastore, utils
-from dotenv import load_dotenv
 
 from application.routes import \
     API as api_routes, \
@@ -16,9 +17,7 @@ from application.routes import \
 from application.routes.web import add_context_processors as add_web_context_processors
 
 from application.database import DB
-
 from application.admin import ADMIN
-
 from application.auth import AUTH
 from application.auth.models import User, Role
 
@@ -55,6 +54,7 @@ def register_blueprints(app):
 
     app.register_blueprint(web_routes)
     app.register_blueprint(api_routes, url_prefix="/api")
+    # TODO: This blueprint (database_routes) should probably be disabled before going live.
     app.register_blueprint(database_routes, url_prefix="/db")
     add_web_context_processors(app, domain=DOMAIN)
     return app
@@ -89,9 +89,13 @@ def create_app(test_config=None):
     create_app(test_config:object) -> Flask
         test_config => Use a defined flask config rather than config.py
     """
+    db_protocol = "sqlite"
 
     app = Flask(__name__, instance_relative_config=True)
-    protocol = "sqlite"
+    assets = Environment(app)
+
+    main_css = Bundle('css/main.scss', filters='pyscss', output='gen/main.css')
+    assets.register('main_css', main_css)
 
     app.config.from_mapping(
         SECRET_KEY="dev",
@@ -99,7 +103,7 @@ def create_app(test_config=None):
         # Flask Admin
         FLASK_ADMIN_SWATCH="cerulean",
         # SQLAlchemy
-        SQLALCHEMY_DATABASE_URI=f"{protocol}:///{app.instance_path}/db.sqlite",
+        SQLALCHEMY_DATABASE_URI=f"{db_protocol}:///{app.instance_path}/db.sqlite",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # Flask Security
         SECURITY_PASSWORD_SALT=SECURITY_PASSWORD_SALT,

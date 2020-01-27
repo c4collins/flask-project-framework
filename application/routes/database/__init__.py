@@ -1,5 +1,4 @@
-"""Routes for the Database - probably for tests or stored procedures in development.
-This blueprint should probably be disabled before going live."""
+"""Routes for the Database - probably for tests or stored procedures in development."""
 
 from flask import Blueprint
 from application.auth.models import User, Role
