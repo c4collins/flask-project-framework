@@ -6,7 +6,7 @@ import uuid
 from flask import Flask, url_for
 from flask_admin import helpers as admin_helpers
 from flask_migrate import Migrate
-from flask_security import utils
+from flask_security import SQLAlchemyUserDatastore, utils
 from dotenv import load_dotenv
 
 from application.routes import API as api_routes
@@ -17,12 +17,11 @@ from application.database import DB
 
 from application.admin import ADMIN
 
-from application.auth import Auth
+from application.auth import AUTH
 from application.auth.models import User, Role
 
 load_dotenv()  # Added for Windows because I couldn't figure out how powershell env vars worked
 
-AUTH = Auth()
 
 try:
     DOMAIN = os.environ['DOMAIN']
@@ -53,25 +52,25 @@ def register_blueprints(app):
     return app
 
 
-def create_default_user_and_roles():
+def create_default_user_and_roles(security):
     """Creates roles + an admin user if none exist"""
 
     if Role.query.filter_by(name='admin').count() == 0:
-        AUTH.user_datastore.find_or_create_role(
+        security.user_datastore.find_or_create_role(
             name='admin', description='Administrator')
 
     if Role.query.filter_by(name='end-user').count() == 0:
-        AUTH.user_datastore.find_or_create_role(
+        security.user_datastore.find_or_create_role(
             name='end-user', description='End user')
 
     if User.query.filter_by(email=ADMIN_EMAIL).count() == 0:
         # DB.create_all()
-        AUTH.user_datastore.create_user(
+        security.user_datastore.create_user(
             email=ADMIN_EMAIL,
             password=utils.encrypt_password(ADMIN_PASSWORD)
         )
         DB.session.commit()
-        AUTH.user_datastore.add_role_to_user(ADMIN_EMAIL, 'admin')
+        security.user_datastore.add_role_to_user(ADMIN_EMAIL, 'admin')
 
     DB.session.commit()
 
@@ -124,7 +123,8 @@ def create_app(test_config=None):
     DB.init_app(app)
     Migrate(app, DB)
 
-    AUTH.init_app(app)
+    user_datastore = SQLAlchemyUserDatastore(DB, User, Role)
+    security = AUTH.init_app(app, user_datastore)
 
     app = register_blueprints(app)
 
@@ -132,6 +132,6 @@ def create_app(test_config=None):
 
     with app.test_request_context():
         DB.create_all()
-        create_default_user_and_roles()
+        create_default_user_and_roles(security)
 
     return app
