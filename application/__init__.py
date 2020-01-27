@@ -60,25 +60,25 @@ def register_blueprints(app):
     return app
 
 
-def create_default_user_and_roles(security):
+def create_default_user_and_roles(user_datastore):
     """Creates roles + an admin user if none exist"""
 
     if Role.query.filter_by(name='admin').count() == 0:
-        security.user_datastore.find_or_create_role(
+        user_datastore.find_or_create_role(
             name='admin', description='Administrator')
 
     if Role.query.filter_by(name='end-user').count() == 0:
-        security.user_datastore.find_or_create_role(
+        user_datastore.find_or_create_role(
             name='end-user', description='End user')
 
     if User.query.filter_by(email=ADMIN_EMAIL).count() == 0:
         # DB.create_all()
-        security.user_datastore.create_user(
+        user_datastore.create_user(
             email=ADMIN_EMAIL,
             password=utils.encrypt_password(ADMIN_PASSWORD)
         )
         DB.session.commit()
-        security.user_datastore.add_role_to_user(ADMIN_EMAIL, 'admin')
+        user_datastore.add_role_to_user(ADMIN_EMAIL, 'admin')
 
     DB.session.commit()
 
@@ -139,7 +139,7 @@ def create_app(test_config=None):
 
     with app.test_request_context():
         DB.create_all()
-        create_default_user_and_roles(security)
+        create_default_user_and_roles(user_datastore)
 
     @app.route('/favicon.ico')
     def favicon():
