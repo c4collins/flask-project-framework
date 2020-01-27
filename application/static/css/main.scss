@@ -1,5 +1,4 @@
-$body-background: red;
-$footer-background: green;
+@import 'core/_index';
 
 body {
     background-color: $body-background;
@@ -7,5 +6,5 @@ body {
 
 .footer {
     background-color: $footer-background;
-    box-shadow:  0 50vh 0 50vh $footer-background;
+    box-shadow: 0 50vh 0 50vh $footer-background;
 }
