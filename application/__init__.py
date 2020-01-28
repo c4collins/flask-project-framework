@@ -2,9 +2,11 @@
 
 import os
 import uuid
+import logging
+from time import strftime
 
 from dotenv import load_dotenv
-from flask import Flask, url_for, send_from_directory
+from flask import Flask, url_for, send_from_directory, request
 from flask_admin import helpers as admin_helpers
 from flask_assets import Environment, Bundle
 from flask_security import SQLAlchemyUserDatastore, utils
@@ -20,6 +22,8 @@ from application.routes import WEB as web_routes
 from application.routes.web import web_context_processors
 
 load_dotenv()  # Added for Windows because I couldn't figure out how powershell env vars worked
+
+logger = logging.getLogger(__name__)
 
 
 try:
@@ -164,5 +168,11 @@ def create_app(test_config=None):
         return send_from_directory(
             os.path.join(app.root_path, 'static'),
             'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+    @app.after_request
+    def after_request(response):
+        timestamp = strftime('[%Y-%b-%d %H:%M]')
+        logger.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
+        return response
 
     return app
