@@ -4,7 +4,7 @@ from flask import Blueprint, render_template
 
 WEB = Blueprint('web', __name__)
 
-def add_context_processors(app, domain):
+def web_context_processors(app, domain):
     """Adds context processors for the web routes"""
     @app.context_processor
     def add_site_info():

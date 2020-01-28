@@ -20,6 +20,7 @@ wtforms = "*"
 flask-wtf = "*"
 pyscss = "*"
 flask-assets = "*"
+flask-mail = "*"
 
 [requires]
 python_version = "3.7"

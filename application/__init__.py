@@ -7,19 +7,17 @@ from dotenv import load_dotenv
 from flask import Flask, url_for, send_from_directory
 from flask_admin import helpers as admin_helpers
 from flask_assets import Environment, Bundle
-from flask_migrate import Migrate
 from flask_security import SQLAlchemyUserDatastore, utils
 
-from application.routes import \
-    API as api_routes, \
-    WEB as web_routes, \
-    DATABASE as database_routes
-from application.routes.web import add_context_processors as add_web_context_processors
-
-from application.database import DB
 from application.admin import ADMIN
 from application.auth import AUTH
 from application.auth.models import User, Role
+from application.database import DB, MIGRATE
+from application.mail import MAIL
+from application.routes import API as api_routes
+from application.routes import DATABASE as database_routes
+from application.routes import WEB as web_routes
+from application.routes.web import web_context_processors
 
 load_dotenv()  # Added for Windows because I couldn't figure out how powershell env vars worked
 
@@ -44,6 +42,10 @@ try:
 except KeyError:
     SECURITY_PASSWORD_SALT = str(uuid.uuid5(uuid.NAMESPACE_DNS, DOMAIN))
 
+try:
+    MAIL_DEFAULT_SENDER = os.environ['MAIL_DEFAULT_SENDER']
+except KeyError:
+    MAIL_DEFAULT_SENDER = f"notifications@{DOMAIN}"
 
 def register_blueprints(app):
     """Registers blueprints to the application
@@ -56,7 +58,7 @@ def register_blueprints(app):
     app.register_blueprint(api_routes, url_prefix="/api")
     # TODO: This blueprint (database_routes) should probably be disabled before going live.
     app.register_blueprint(database_routes, url_prefix="/db")
-    add_web_context_processors(app, domain=DOMAIN)
+    web_context_processors(app, domain=DOMAIN)
     return app
 
 
@@ -107,7 +109,7 @@ def create_app(test_config=None):
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # Flask Security
         SECURITY_PASSWORD_SALT=SECURITY_PASSWORD_SALT,
-        SECURITY_CONFIRMABLE=False,  # TODO: Set this up later, post flask-mail setup
+        SECURITY_CONFIRMABLE=False,
         SECURITY_TRACKABLE=True,
         SECURITY_REGISTERABLE=True,
         SECURITY_RECOVERABLE=True,
@@ -119,10 +121,20 @@ def create_app(test_config=None):
         SECURITY_POST_LOGIN_VIEW="/",
         SECURITY_POST_LOGOUT_VIEW="/",
         SECURITY_POST_REGISTER_VIEW="/",
+        # Flask Mail
+        MAIL_SERVER="smtp-relay.gmail.com",
+        MAIL_PORT=465,
+        MAIL_USE_TLS=False,
+        MAIL_USE_SSL=True,
+        MAIL_USERNAME=os.environ['MAIL_USERNAME'],
+        MAIL_PASSWORD=os.environ['MAIL_PASSWORD'],
+        MAIL_DEFAULT_SENDER=MAIL_DEFAULT_SENDER,
+        MAIL_MAX_EMAILS=2000,
+        MAIL_ASCII_ATTACHMENTS=False,
     )
 
     if test_config is None:
-        app.config.from_pyfile('config.py', silent=True)
+        app.config.from_pyfile('config.py', silent=True) # TODO Create config file for prod
     else:
         app.config.from_mapping(test_config)
 
@@ -132,10 +144,12 @@ def create_app(test_config=None):
         pass
 
     DB.init_app(app)
-    Migrate(app, DB)
+    MIGRATE.init_app(app, DB)
+
+    MAIL.init_app(app)
 
     user_datastore = SQLAlchemyUserDatastore(DB, User, Role)
-    security = AUTH.init_app(app, user_datastore)
+    AUTH.init_app(app, user_datastore)
 
     app = register_blueprints(app)
 

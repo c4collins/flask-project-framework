@@ -17,6 +17,11 @@
     - `ADMIN_EMAIL=` # email address for admin account; defaults to `connor@{DOMAIN}`
     - `ADMIN_PASSWORD=` # password for said admin account; defaults to `Pa55w0rD!`
     - `SECURITY_PASSWORD_SALT=` # Salt for user passwords; defaults to an insecure uuid5 which lets you share dbs between environments for development
+    - `MAIL_USERNAME` # Username for gmail account that can authorize sending emails (i.e. G Suite admin account)
+    - `MAIL_PASSWORD` # Password for said gmail account
+    - `MAIL_DEFAULT_SENDER` # email address to actually use for sending; defaults to notifications@{DOMAIN} - make sure you can receive mail or have an undeliverable reply for this address for marketing purposes
+    
+    #\ if you want to use something other than G Suite you'll have to mess with the code
 1. Run `pipenv shell` to create or join the 
 1. `pipenv install`
 1. Run locally with `flask run --host 0.0.0.0 --port 5000`
