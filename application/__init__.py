@@ -3,7 +3,6 @@
 import os
 import uuid
 import logging
-from time import strftime
 
 from dotenv import load_dotenv
 from flask import Flask, url_for, send_from_directory, request
@@ -169,10 +168,10 @@ def create_app(test_config=None):
             os.path.join(app.root_path, 'static'),
             'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-    @app.after_request
-    def after_request(response):
-        timestamp = strftime('[%Y-%b-%d %H:%M]')
-        logger.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
-        return response
+    #@app.after_request
+    #def after_request(response):
+    #    timestamp = strftime('[%Y-%b-%d %H:%M]')
+    #    logger.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
+    #    return response
 
     return app

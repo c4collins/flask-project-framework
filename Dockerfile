@@ -16,6 +16,7 @@ RUN pip install -r requirements.txt
 
 HEALTHCHECK CMD wget -q -O /dev/null http://0.0.0.0:$PORT/ || exit 1
 
+COPY ./.env /app/.env
 COPY ./application/ /app/application/
 
 CMD flask run --host $HOST --port $PORT
