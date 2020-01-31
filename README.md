@@ -13,6 +13,8 @@
 1. Create a `.env` file containing:
     - `FLASK_APP=application` # Shouldn't change, probably doesn't need to be variable but ¯\\_(ツ)_/¯
     - `FLASK_ENV=development` # or `production`
+    - `DEBUG=True` # Flask DEBUG option; defaults to False
+    - `SECRET_KEY=` @ Flask secret key; defaults to 'dev'
     - `DOMAIN=` # the domain this site will run on; defaults to `connomation.ca`
     - `ADMIN_EMAIL=` # email address for admin account; defaults to `connor@{DOMAIN}`
     - `ADMIN_PASSWORD=` # password for said admin account; defaults to `Pa55w0rD!`
@@ -21,7 +23,7 @@
     - `MAIL_PASSWORD` # Password for said gmail account
     - `MAIL_DEFAULT_SENDER` # email address to actually use for sending; defaults to notifications@{DOMAIN} - make sure you can receive mail or have an undeliverable reply for this address for marketing purposes
     
-    #\ if you want to use something other than G Suite you'll have to mess with the code
+    NOTE: If you want to use something other than G Suite for your SMTP server you'll have to mess with the code # TODO
 1. Run `pipenv shell` to create or join the 
 1. `pipenv install`
 1. Run locally with `flask run --host 0.0.0.0 --port 5000`

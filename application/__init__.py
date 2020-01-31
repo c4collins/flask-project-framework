@@ -20,10 +20,19 @@ from application.routes import DATABASE as database_routes
 from application.routes import WEB as web_routes
 from application.routes.web import web_context_processors
 
-load_dotenv()  # Added for Windows because I couldn't figure out how powershell env vars worked
-
 logger = logging.getLogger(__name__)
 
+load_dotenv()
+
+try:
+    SECRET_KEY = os.environ['SECRET_KEY']
+except KeyError:
+    SECRET_KEY = 'dev'
+
+try:
+    DEBUG = bool(os.environ['DEBUG'])
+except KeyError:
+    DEBUG = False
 
 try:
     DOMAIN = os.environ['DOMAIN']
@@ -56,7 +65,7 @@ def register_blueprints(app):
     register_blueprints(app:Flask) -> Flask
         app => Flask application to attach these blueprints to
     """
-
+    logger.info('Loading blueprints')
     app.register_blueprint(web_routes)
     app.register_blueprint(api_routes, url_prefix="/api")
     # TODO: This blueprint (database_routes) should probably be disabled before going live.
@@ -69,14 +78,17 @@ def create_default_user_and_roles(user_datastore):
     """Creates roles + an admin user if none exist"""
 
     if Role.query.filter_by(name='admin').count() == 0:
+        logger.info('Creating admin role')
         user_datastore.find_or_create_role(
             name='admin', description='Administrator')
 
     if Role.query.filter_by(name='end-user').count() == 0:
+        logger.info('Creating end-user role')
         user_datastore.find_or_create_role(
             name='end-user', description='End user')
 
     if User.query.filter_by(email=ADMIN_EMAIL).count() == 0:
+        logger.info('Creating admin user')
         # DB.create_all()
         user_datastore.create_user(
             email=ADMIN_EMAIL,
@@ -103,8 +115,8 @@ def create_app(test_config=None):
     assets.register('main_css', main_css)
 
     app.config.from_mapping(
-        SECRET_KEY="dev",
-        DEBUG=True,
+        SECRET_KEY=SECRET_KEY,
+        DEBUG=DEBUG,
         # Flask Admin
         FLASK_ADMIN_SWATCH="cerulean",
         # SQLAlchemy
@@ -174,4 +186,5 @@ def create_app(test_config=None):
     #    logger.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
     #    return response
 
+    logger.debug('app loaded')
     return app
