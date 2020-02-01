@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  flask:
+    build:
+      context: ./framework/
+      args:
+       name: Project Framework
+       version: 0.1
+       maintainer: connor@connomation.ca
+    ports:
+     - "5000:5000"
+    environment:
+      FLASK_ENV: development
