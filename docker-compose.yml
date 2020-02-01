@@ -3,7 +3,7 @@ version: "2"
 services:
   flask:
     build:
-      context: ./framework/
+      context: .
       args:
        name: Project Framework
        version: 0.1
