@@ -20,44 +20,27 @@ from application.routes import DATABASE as database_routes
 from application.routes import WEB as web_routes
 from application.routes.web import web_context_processors
 
-logger = logging.getLogger(__name__)
-
 load_dotenv()
 
-try:
-    SECRET_KEY = os.environ['SECRET_KEY']
-except KeyError:
-    SECRET_KEY = 'dev'
+def try_except(key_to_check, failure, *exceptions):
+    """Checks for env_vars or returns the default"""
+    try:
+        return os.environ[key_to_check]
+    except KeyError:
+        return failure
 
-try:
-    DEBUG = bool(os.environ['DEBUG'])
-except KeyError:
-    DEBUG = False
-
-try:
-    DOMAIN = os.environ['DOMAIN']
-except KeyError:
-    DOMAIN = 'connomation.ca'
-
-try:
-    ADMIN_EMAIL = os.environ['ADMIN_EMAIL']
-except KeyError:
-    ADMIN_EMAIL = f'connor@{DOMAIN}'
-
-try:
-    ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
-except KeyError:
-    ADMIN_PASSWORD = 'Pa55w0rD!'
-
-try:
-    SECURITY_PASSWORD_SALT = os.environ['SECURITY_PASSWORD_SALT']
-except KeyError:
-    SECURITY_PASSWORD_SALT = str(uuid.uuid5(uuid.NAMESPACE_DNS, DOMAIN))
-
-try:
-    MAIL_DEFAULT_SENDER = os.environ['MAIL_DEFAULT_SENDER']
-except KeyError:
-    MAIL_DEFAULT_SENDER = f"notifications@{DOMAIN}"
+SECRET_KEY = try_except('SECRET_KEY', 'dev')
+DEBUG = try_except('DEBUG', False)
+MAIL_DEBUG = int(DEBUG == True) # Flask-Mail has some issues with bools
+DOMAIN = try_except('DOMAIN', 'connomation.ca')
+ADMIN_EMAIL = try_except('ADMIN_EMAIL', f'connor@{DOMAIN}')
+ADMIN_PASSWORD = try_except('ADMIN_PASSWORD', 'Pa55w0rD!')
+SECURITY_PASSWORD_SALT = try_except(
+    'SECURITY_PASSWORD_SALT',
+    str(uuid.uuid5(uuid.NAMESPACE_DNS, DOMAIN))
+)
+MAIL_DEFAULT_SENDER = try_except(
+    'MAIL_DEFAULT_SENDER', f"notifications@{DOMAIN}")
 
 def register_blueprints(app):
     """Registers blueprints to the application
@@ -65,6 +48,7 @@ def register_blueprints(app):
     register_blueprints(app:Flask) -> Flask
         app => Flask application to attach these blueprints to
     """
+    logger = logging.getLogger(__name__)
     logger.info('Loading blueprints')
     app.register_blueprint(web_routes)
     app.register_blueprint(api_routes, url_prefix="/api")
@@ -76,7 +60,7 @@ def register_blueprints(app):
 
 def create_default_user_and_roles(user_datastore):
     """Creates roles + an admin user if none exist"""
-
+    logger = logging.getLogger(__name__)
     if Role.query.filter_by(name='admin').count() == 0:
         logger.info('Creating admin role')
         user_datastore.find_or_create_role(
@@ -106,8 +90,8 @@ def create_app(test_config=None):
     create_app(test_config:object) -> Flask
         test_config => Use a defined flask config rather than config.py
     """
+    logger = logging.getLogger(__name__)
     db_protocol = "sqlite"
-
     app = Flask(__name__, instance_relative_config=True)
     assets = Environment(app)
 
@@ -141,6 +125,7 @@ def create_app(test_config=None):
         MAIL_PORT=465,
         MAIL_USE_TLS=False,
         MAIL_USE_SSL=True,
+        MAIL_DEBUG=MAIL_DEBUG,
         MAIL_USERNAME=os.environ['MAIL_USERNAME'],
         MAIL_PASSWORD=os.environ['MAIL_PASSWORD'],
         MAIL_DEFAULT_SENDER=MAIL_DEFAULT_SENDER,
@@ -149,7 +134,8 @@ def create_app(test_config=None):
     )
 
     if test_config is None:
-        app.config.from_pyfile('config.py', silent=True) # TODO Create config file for prod
+        # TODO Create config file for prod
+        app.config.from_pyfile('config.py', silent=True)
     else:
         app.config.from_mapping(test_config)
 
@@ -180,8 +166,8 @@ def create_app(test_config=None):
             os.path.join(app.root_path, 'static'),
             'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-    #@app.after_request
-    #def after_request(response):
+    # @app.after_request
+    # def after_request(response):
     #    timestamp = strftime('[%Y-%b-%d %H:%M]')
     #    logger.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
     #    return response

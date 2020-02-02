@@ -4,23 +4,23 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pylint = "*"
 autopep8 = "*"
+pylint = "*"
 rope = "*"
 
 [packages]
-Flask-SQLAlchemy="*"
-Flask-Admin="*"
-Flask="*"
-flask-security = "*"
-python-dotenv = "*"
 bcrypt = "*"
-flask-migrate = "*"
-wtforms = "*"
-flask-wtf = "*"
-pyscss = "*"
+Flask-Admin="*"
 flask-assets = "*"
 flask-mail = "*"
+flask-migrate = "*"
+flask-security = "*"
+Flask-SQLAlchemy="*"
+flask-wtf = "*"
+Flask="*"
+pyscss = "*"
+python-dotenv = "*"
+wtforms = "*"
 
 [requires]
 python_version = "3.7"
