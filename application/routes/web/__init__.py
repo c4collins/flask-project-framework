@@ -7,6 +7,7 @@ WEB = Blueprint('web', __name__)
 def web_context_processors(app, domain):
     """Adds context processors for the web routes"""
     @app.context_processor
+    # pylint: disable=unused-variable
     def add_site_info():
         return {
             'domain': domain

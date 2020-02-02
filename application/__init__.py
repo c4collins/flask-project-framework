@@ -53,7 +53,7 @@ def register_blueprints(app):
     logger.info('Loading blueprints')
     app.register_blueprint(web_routes)
     app.register_blueprint(api_routes, url_prefix="/api")
-    # TODO: This blueprint (database_routes) should probably be disabled before going live.
+    # NOTE: This blueprint (database_routes) should probably be disabled before going live.
     app.register_blueprint(database_routes, url_prefix="/db")
     web_context_processors(app, domain=DOMAIN)
     return app
@@ -137,7 +137,7 @@ def create_app(test_config=None):
         create_default_user_and_roles(user_datastore)
 
     @app.route('/favicon.ico')
-    def favicon():
+    def _favicon():
         return send_from_directory(
             os.path.join(app.root_path, 'static'),
             'favicon.ico', mimetype='image/vnd.microsoft.icon')
