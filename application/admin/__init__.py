@@ -7,7 +7,7 @@ from application.database.models import Project, ProjectAdmin
 
 from application.auth.models import User, UserAdmin, Role, RoleAdmin
 
-ADMIN = Admin()
+ADMIN = Admin(template_mode="bootstrap3")
 
 # Default
 ADMIN.add_view(ProjectAdmin(Project, DB.session))

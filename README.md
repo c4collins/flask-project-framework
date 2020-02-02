@@ -11,19 +11,14 @@
 ## Development Startup Instructions
 1. Close the repo and `cd` into the folder
 1. Create a `.env` file containing:
-    - `FLASK_APP=application` # Shouldn't change, probably doesn't need to be variable but ¯\\_(ツ)_/¯
-    - `FLASK_ENV=development` # or `production`
-    - `DEBUG=True` # Flask DEBUG option; defaults to False
-    - `SECRET_KEY=` @ Flask secret key; defaults to 'dev'
-    - `DOMAIN=` # the domain this site will run on; defaults to `connomation.ca`
-    - `ADMIN_EMAIL=` # email address for admin account; defaults to `connor@{DOMAIN}`
-    - `ADMIN_PASSWORD=` # password for said admin account; defaults to `Pa55w0rD!`
-    - `SECURITY_PASSWORD_SALT=` # Salt for user passwords; defaults to an insecure uuid5 which lets you share dbs between environments for development
-    - `MAIL_USERNAME` # Username for gmail account that can authorize sending emails (i.e. G Suite admin account)
-    - `MAIL_PASSWORD` # Password for said gmail account
-    - `MAIL_DEFAULT_SENDER` # email address to actually use for sending; defaults to notifications@{DOMAIN} - make sure you can receive mail or have an undeliverable reply for this address for marketing purposes
+    - `FLASK_APP=` # application; always
+    - `FLASK_ENV=` # development; or anything else for prod mode
+    - `MAIL_USERNAME=` # Email account to login to server as not necessarily the sendmail address
+    - `MAIL_PASSWORD=` # Password for that user
     
     NOTE: If you want to use something other than G Suite for your SMTP server you'll have to mess with the code # TODO
+1. Check that the settings in {dev,prod}.cfg are acceptable - prod overwrites dev when in prod mode, but most of the settings don't need to be overwritten
+    - FLASK_ADMIN_SWATCH choices available here: https://bootswatch.com/3/
 1. Run `pipenv shell` to create or join the 
 1. `pipenv install`
 1. Run locally with `flask run --host 0.0.0.0 --port 5000`
