@@ -19,9 +19,7 @@
    - `MAIL_USERNAME=` # Email account to login to server as not necessarily the sendmail address
    - `MAIL_PASSWORD=` # Password for that user
 
-   NOTE: If you want to use something other than G Suite for your SMTP server you'll have to mess with the code # TODO
-
-1. Check that the settings in {dev,prod}.cfg are acceptable - prod overwrites dev when in prod mode, but most of the settings don't need to be overwritten
+1. Check that the settings in `settings/{dev,prod}.cfg` are acceptable - `prod` overwrites `dev` when not in 'development' mode, but most of the settings don't need to be overwritten
    - FLASK_ADMIN_SWATCH choices available [here](https://bootswatch.com/3/)
 1. Run `pipenv shell` to create or join the the virtuaenv
 1. `pipenv install`

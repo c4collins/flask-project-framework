@@ -1,4 +1,17 @@
-"""Flask application factory & configuration"""
+"""Flask application factory & configuration
+
+TODO:
+- logger config
+- postgres instead of sqlite
+- docker-compose nginx + letsencrypt + postgres
+- CI/CD automation
+- writing tests
+- admin formatting & templates
+- security templates
+- form recapcha - make a PR? https://github.com/mattupstate/flask-security/issues/404
+- Flask-social - https://pythonhosted.org/Flask-Social/
+- 2FA
+"""
 
 from pathlib import Path
 import logging
@@ -12,6 +25,7 @@ from flask_assets import Environment, Bundle
 from flask_security import SQLAlchemyUserDatastore, utils
 
 from application.helpers import try_except
+from application.template_filters import init_template_filters
 
 from application.admin import ADMIN
 from application.auth import AUTH
@@ -53,7 +67,7 @@ def register_blueprints(app):
     logger.info('Loading blueprints')
     app.register_blueprint(web_routes)
     app.register_blueprint(api_routes, url_prefix="/api")
-    # NOTE: This blueprint (database_routes) should probably be disabled before going live.
+    # NOTE: This blueprint (database_routes \/) should probably be disabled before going live.
     app.register_blueprint(database_routes, url_prefix="/db")
     web_context_processors(app, domain=DOMAIN)
     return app
@@ -97,13 +111,13 @@ def create_app(test_config=None):
         instance_path=INSTANCE_PATH,
         instance_relative_config=True,
     )
-    assets = Environment(app)
-
     app.config.from_mapping(
         SECRET_KEY=SECRET_KEY,
         SQLALCHEMY_DATABASE_URI=SQLALCHEMY_DATABASE_URI,
+        SECURITY_PASSWORD_SALT=SECURITY_PASSWORD_SALT,
+        MAIL_DEBUG=MAIL_DEBUG,
+        MAIL_DEFAULT_SENDER=MAIL_DEFAULT_SENDER,
     )
-
     if test_config is None:
         settings_path = Path(os.path.dirname(__file__), '..', 'settings')
         app.config.from_pyfile(Path(settings_path, 'dev.cfg'))
@@ -112,6 +126,9 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
+    init_template_filters(app)
+
+    assets = Environment(app)
     main_css = Bundle('css/main.scss', filters='pyscss', output='gen/main.css')
     assets.register('main_css', main_css)
 
@@ -141,20 +158,6 @@ def create_app(test_config=None):
         return send_from_directory(
             os.path.join(app.root_path, 'static'),
             'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-    # @app.after_request
-    # def after_request(response):
-    #    timestamp = strftime('[%Y-%b-%d %H:%M]')
-    #    logger.error(
-    #       '%s %s %s %s %s %s',
-    #       timestamp,
-    #       request.remote_addr,
-    #       request.method,
-    #       request.scheme,
-    #       request.full_path,
-    #       response.status
-    #   )
-    #    return response
 
     logger.debug('app loaded')
     return app

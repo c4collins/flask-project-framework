@@ -1,0 +1,3 @@
+{% macro classes(required, optional=[]) %}
+    {{required}}{% for opt in optional %}{% if opt %} {{opt}}{% endif %}{% endfor %}
+{% endmacro %}

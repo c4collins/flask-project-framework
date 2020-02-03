@@ -16,5 +16,3 @@ ADMIN.add_view(ProjectAdmin(Project, DB.session))
 ## User admin
 ADMIN.add_view(RoleAdmin(Role, DB.session))
 ADMIN.add_view(UserAdmin(User, DB.session))
-# ADMIN.add_view(ModelView(Role, DB.session)) # Insecure
-# ADMIN.add_view(ModelView(User, DB.session)) # Insecure
