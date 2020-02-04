@@ -1,76 +1,11 @@
 {% extends "core/_.html" %}
-{% from "core/template_macros.html.j2" import classes %}
+{% from "core/template_macros.html.j2" import classes, security_form_header, security_form_footer, security_form_text, security_form_checkbox with context %}
 
 {% block page_content %}
-<div class="columns is-centered">
-    <div class="column is-half">
-        <form action="{{ url_for_security('login') }}" method="POST">
-            {{ login_user_form.hidden_tag() }}
-            <div class="field">
-                {{ login_user_form.email.label(class="label") }}
-                <div class="control has-icons-left">
-                    {{ login_user_form.email(
-                        class=classes(
-                            "input", 
-                            [
-                                'is-danger' if login_user_form.errors.email else ''
-                            ]
-                        )
-                    ) -}}
-                    {% if login_user_form.errors.email %}
-                    <span class="icon is-small is-left has-text-danger">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </span>
-                    {% else %}
-                    <span class="icon is-small is-left">
-                        <i class="fas fa-at"></i>
-                    </span>
-                    {% endif %}
-                </div>
-                {% for e in login_user_form.errors.email %}
-                <p class="help is-danger">{{e}}</p>
-                {% endfor %}
-            </div>
-
-            <div class="field">
-                {{ login_user_form.password.label(class="label") }}
-                <div class="control has-icons-left">
-                    {{ login_user_form.password(class=classes(
-                            "input", 
-                            [
-                                'is-danger' if login_user_form.errors.password else ''
-                            ]
-                        )) -}}
-                    {% if login_user_form.errors.password %}
-                    <span class="icon is-small is-left has-text-danger">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </span>
-                    {% else %}
-                    <span class="icon is-small is-left">
-                        <i class="fas fa-key"></i>
-                    </span>
-                    {% endif %}
-                </div>
-                {% for e in login_user_form.errors.password %}
-                <p class="help is-danger">{{e}}</p>
-                {% endfor %}
-            </div>
-
-            <div class="field">
-                <div class="control">
-                    <label class="label" for="remember">
-                    {{ login_user_form.remember }}
-                    {{ login_user_form.remember.label.text }}
-                    </label>
-                </div>
-            </div>
-
-            <div class="field">
-                <div class="control">
-                    {{ login_user_form.submit(class="button is-link") }}
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+    {{ security_form_header('Login', 'login', login_user_form) }}
+        {{ login_user_form.hidden_tag() }}
+        {{ security_form_text( 'email', 'at', 'exclamation-triangle', login_user_form) }}
+        {{ security_form_text( 'password', 'key', 'exclamation-triangle', login_user_form) }}
+        {{ security_form_checkbox('remember', login_user_form) }}
+    {{ security_form_footer([login_user_form.submit(class="button is-link")]) }}
 {% endblock page_content %}

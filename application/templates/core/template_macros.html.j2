@@ -1,3 +1,69 @@
-{% macro classes(required, optional=[]) %}
-    {{required}}{% for opt in optional %}{% if opt %} {{opt}}{% endif %}{% endfor %}
+{% macro classes(required, optional=[]) %}{{required}}{% for opt in optional %}{% if opt %} {{opt}}{% endif %}{% endfor %}{% endmacro %}
+
+{% macro security_form_header(title, form_url_for, form_object) %}
+<div class="columns is-centered">
+    <div class="column is-half">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">{{ title }}</p>
+            </header>
+            <form action="{{ url_for_security(form_url_for) }}" method="POST">
+                <div class="card-content">
+{% endmacro %}
+
+{% macro security_form_footer(buttons=[]) %}
+                </div>
+                <footer class="card-footer">
+                    {% for button in buttons %}
+                    <div class="field card-footer-item">
+                        <div class="control">
+                            {{ button }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </footer>
+            </form>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro security_form_text(field_name, icon, err_icon, form_object) %}
+<div class="field">
+    {{ form_object[field_name].label(class="label") }}
+    <div class="control has-icons-left">
+        {{ form_object[field_name](
+            class=classes(
+                "input",
+                [
+                    'is-danger' if form_object.errors[field_name] else ''
+                ]
+            )
+        ) -}}
+        {% if form_object.errors[field_name] %}
+        <span class="icon is-small is-left has-text-danger">
+            <i class="fas fa-{{ err_icon }}"></i>
+        </span>
+        {% else %}
+        <span class="icon is-small is-left">
+            <i class="fas fa-{{ icon }}"></i>
+        </span>
+        {% endif %}
+    </div>
+    {% for e in form_object.errors[field_name] %}
+    <p class="help is-danger">{{e}}</p>
+    {% endfor %}
+</div>
+{% endmacro %}
+
+
+{% macro security_form_checkbox(field_name, form_object) %}
+    <div class="field">
+        <div class="control">
+            <label class="label" for="{{field_name}}"">
+            {{ form_object[field_name] }}
+            {{ form_object[field_name].label.text }}
+            </label>
+        </div>
+    </div>
 {% endmacro %}
