@@ -24,3 +24,8 @@
 1. Run `pipenv shell` to create or join the the virtuaenv
 1. `pipenv install`
 1. Run locally with `flask run --host 0.0.0.0 --port 5000`
+
+## Production/Server Startup instructions
+
+1. `pipenv lock --requirements > requirements.txt`
+1. `docker-compose up --build -d`

@@ -21,6 +21,7 @@ Flask="*"
 pyscss = "*"
 python-dotenv = "*"
 wtforms = "*"
+sqlalchemy-utils = "*"
 
 [requires]
 python_version = "3.7"
